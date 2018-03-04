@@ -6,16 +6,13 @@
 package chap2.search.maze.breadthfirst;
 
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
+import java.util.Scanner;
 
 import javax.swing.DebugGraphics;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
-import chap2.search.maze.Location;
 import chap2.search.maze.Maze;
-import chap2.search.maze.MazeSearchGlobals;
+import chap2.search.maze.breadthfirst.gui.MazeBreadthFirstSearchJPanel;
 
 /**
  * @author Rambod Rahmani &lt;rambodrahmani@autistici.org&gt;
@@ -23,129 +20,93 @@ import chap2.search.maze.MazeSearchGlobals;
 public class MazeBreadthFirstSearch extends JFrame
 {
     /**
-     * 
+     * Serial Version UID.
      */
-    private static final long serialVersionUID	  = 2L;
+    private static final long serialVersionUID = -7813706126969126099L;
 
-    final JPanel	      jPanel		  = new JPanel();
+    // JPanel used to show the maze on the JFrame
+    private MazeBreadthFirstSearchJPanel breadthFirstSearchJPanel = null;
 
-    BreadthFirstSearchEngine  currentSearchEngine = null;
+    // Current search engine
+    private BreadthFirstSearchEngine breadthFirstSearchEngine = null;
 
     /**
+     * Default constructor. Creates a {@link BreadthFirstSearchEngine} and starts
+     * the breadth first search on a maze with the specified number of rows and
+     * columns.
      * 
+     * @param rows
+     *            the number of rows of the maze.
+     * @param columns
+     *            the number of columns of the maze.
      */
     public MazeBreadthFirstSearch(int rows, int columns)
     {
+	breadthFirstSearchEngine = new BreadthFirstSearchEngine(rows, columns);
+
 	try
 	{
-	    jbInit();
+	    // initialize GUI
+	    initialize();
 	}
 	catch (Exception e)
 	{
 	    System.out.println("GUI initilization error: " + e);
 	}
 
-	currentSearchEngine = new BreadthFirstSearchEngine(rows, columns);
-
 	repaint();
     }
 
-    public void paint(Graphics g_unused)
+    /**
+     * @throws Exception
+     */
+    private void initialize() throws Exception
     {
-	if (currentSearchEngine == null)
-	{
-	    return;
-	}
+	// TODO: Add scrollbars to the frame.
 
-	Maze maze = currentSearchEngine.getMaze();
-
-	int rows = maze.getRows();
-	int columns = maze.getColumns();
-
-	System.out.println("Size of current maze: " + rows + " by " + columns);
-
-	Graphics g = jPanel.getGraphics();
-	BufferedImage image = new BufferedImage(320, 320, BufferedImage.TYPE_INT_RGB);
-	Graphics g2 = image.createGraphics();
-	g2.setColor(Color.white);
-	g2.fillRect(0, 0, 320, 320);
-	g2.setColor(Color.black);
-
-	maze.setValue(0, 0, MazeSearchGlobals.START_LOCATION_VALUE);
-
-	for (int i = 0; i < rows; i++)
-	{
-	    for (int j = 0; j < columns; j++)
-	    {
-		short val = maze.getValue(i, j);
-
-		if (val == MazeSearchGlobals.OBSTACLE)
-		{
-		    g2.setColor(Color.lightGray);
-		    g2.fillRect(6 + i * 29, 3 + j * 29, 29, 29);
-		    g2.setColor(Color.black);
-		    g2.drawRect(6 + i * 29, 3 + j * 29, 29, 29);
-		}
-		else if (val == MazeSearchGlobals.START_LOCATION_VALUE)
-		{
-		    g2.setColor(Color.blue);
-		    g2.drawString("S", 16 + i * 29, 19 + j * 29);
-		    g2.setColor(Color.black);
-		    g2.drawRect(6 + i * 29, 3 + j * 29, 29, 29);
-		}
-		else if (val == MazeSearchGlobals.GOAL_LOCATION_VALUE)
-		{
-		    g2.setColor(Color.red);
-		    g2.drawString("G", 16 + i * 29, 19 + j * 29);
-		    g2.setColor(Color.black);
-		    g2.drawRect(6 + i * 29, 3 + j * 29, 29, 29);
-		}
-		else
-		{
-		    g2.setColor(Color.black);
-		    g2.drawRect(6 + i * 29, 3 + j * 29, 29, 29);
-		}
-	    }
-	}
-
-	// redraw the path in black:
-	g2.setColor(Color.black);
-	Location[] path = currentSearchEngine.getSearchPath();
-	for (int i = 1; i < (path.length - 1); i++)
-	{
-	    int row = path[i].getRow();
-	    int column = path[i].getColumn();
-	    short val = maze.getValue(row, column);
-	    g2.drawString("" + (path.length - i), 16 + row * 29, 19 + column * 29);
-	}
-	g.drawImage(image, 30, 40, 320, 320, null);
-    }
-
-    private void jbInit() throws Exception
-    {
-	this.setContentPane(jPanel);
+	this.setContentPane(getBreadthFirstSearchJPanel());
 
 	this.setCursor(null);
 
-	this.setDefaultCloseOperation(3);
+	// Closing the application when this JFram is closed.
+	this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
+	// JFrame title.
 	this.setTitle("MazeBreadthFirstSearch");
 
-	this.getContentPane().setLayout(null);
+	// Getting the dimensions of the maze to set the correct size for the JFrame.
+	final Maze maze = breadthFirstSearchEngine.getMaze();
+	final int mazeRows = maze.getRows();
+	final int mazeColumns = maze.getColumns();
 
-	jPanel.setBackground(Color.white);
+	// Setting frame size.
+	this.setSize(20 + mazeRows * 31, 40 + mazeColumns * 31);
 
-	jPanel.setDebugGraphicsOptions(DebugGraphics.NONE_OPTION);
-
-	jPanel.setDoubleBuffered(false);
-
-	jPanel.setRequestFocusEnabled(false);
-
-	jPanel.setLayout(null);
-
-	this.setSize(370, 420);
-
+	// Setting frame visible
 	this.setVisible(true);
+    }
+
+    /**
+     * @return the current instance of breadthFirstSearchJPanel.
+     */
+    private MazeBreadthFirstSearchJPanel getBreadthFirstSearchJPanel()
+    {
+	if (breadthFirstSearchJPanel == null)
+	{
+	    // Initialize the JPanel if not already initialized.
+	    breadthFirstSearchJPanel = new MazeBreadthFirstSearchJPanel(breadthFirstSearchEngine);
+
+	    // Sets the background color of this component.
+	    breadthFirstSearchJPanel.setBackground(Color.white);
+
+	    // Enables or disables diagnostic information about every graphics operation
+	    // performed within the component or one of its children.
+	    breadthFirstSearchJPanel.setDebugGraphicsOptions(DebugGraphics.NONE_OPTION);
+
+	    breadthFirstSearchJPanel.setRequestFocusEnabled(false);
+	}
+
+	return breadthFirstSearchJPanel;
     }
 
     /**
@@ -155,6 +116,31 @@ public class MazeBreadthFirstSearch extends JFrame
      */
     public static void main(String[] args)
     {
-	new MazeBreadthFirstSearch(10, 10);
+	int inputRows = -1;
+	int inputColumns = -1;
+	Scanner scanner = new Scanner(System.in);
+
+	System.out.println("Maze Depth First Search");
+	System.out.println("-----------------------");
+	System.out.println("Enter the number of rows:");
+	inputRows = scanner.nextInt();
+
+	System.out.println("Enter the number of columns:");
+	inputColumns = scanner.nextInt();
+
+	if ((inputRows > 0) && (inputColumns > 0))
+	{
+	    System.out.println("Starting Maze Breadth First Search with a maze of size " + inputRows + " by "
+		    + inputColumns + ".");
+
+	    // Starts a Breadth First Search on a maze of the given dimensions.
+	    new MazeBreadthFirstSearch(inputRows, inputColumns);
+	}
+	else
+	{
+	    System.out.println("Invalid inputs.");
+	}
+
+	scanner.close();
     }
 }

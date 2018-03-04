@@ -6,17 +6,13 @@
 package chap2.search.maze.depthfirst;
 
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 import java.util.Scanner;
 
 import javax.swing.DebugGraphics;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
-import chap2.search.maze.Location;
 import chap2.search.maze.Maze;
-import chap2.search.maze.MazeSearchGlobals;
+import chap2.search.maze.depthfirst.gui.MazeDepthFirstSearchJPanel;
 
 /**
  * @author Rambod Rahmani &lt;rambodrahmani@autistici.org&gt;
@@ -51,13 +47,13 @@ public class MazeDepthFirstSearch extends JFrame
      * such declarations apply only to the immediately declaring
      * class--serialVersionUID fields are not useful as inherited members.
      */
-    private static final long serialVersionUID	     = 6440782002968347265L;
+    private static final long serialVersionUID = 6440782002968347265L;
 
-    //
-    final JPanel	      jPanel		     = new JPanel();
+    // JPanel used to show the maze on the JFrame
+    private MazeDepthFirstSearchJPanel depthFirstSearchJPanel = null;
 
-    //
-    DepthFirstSearchEngine    depthFirstSearchEngine = null;
+    // Current search engine
+    private DepthFirstSearchEngine depthFirstSearchEngine = null;
 
     /**
      * Default constructor. Creates a {@link DepthFirstSearchEngine} and starts the
@@ -74,6 +70,7 @@ public class MazeDepthFirstSearch extends JFrame
 
 	try
 	{
+	    // initialize GUI
 	    initialize();
 	}
 	catch (Exception e)
@@ -91,81 +88,6 @@ public class MazeDepthFirstSearch extends JFrame
 	repaint();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.awt.Window#paint(java.awt.Graphics)
-     */
-    public void paint(Graphics g)
-    {
-	if (depthFirstSearchEngine == null)
-	{
-	    return;
-	}
-
-	// Getting the dimensions of the maze to draw.
-	final Maze maze = depthFirstSearchEngine.getMaze();
-	final int mazeRows = maze.getRows();
-	final int mazeColumns = maze.getColumns();
-
-	Graphics jPnaleGraphics = jPanel.getGraphics();
-
-	// BufferedImage used to represent the maze in the JPanel.
-	BufferedImage mazeImage = new BufferedImage(mazeColumns * 31, mazeRows * 31, BufferedImage.TYPE_INT_RGB);
-	Graphics imageGraphics = mazeImage.createGraphics();
-	imageGraphics.setColor(Color.white);
-	imageGraphics.fillRect(0, 0, mazeColumns * 31, mazeRows * 31);
-	imageGraphics.setColor(Color.black);
-
-	// Drawing the maze.
-	for (int i = 0; i < mazeRows; i++)
-	{
-	    for (int j = 0; j < mazeColumns; j++)
-	    {
-		short val = maze.getValue(i, j);
-		if (val == MazeSearchGlobals.OBSTACLE)
-		{
-		    imageGraphics.setColor(Color.lightGray);
-		    imageGraphics.fillRect(6 + j * 29, 3 + i * 29, 29, 29);
-		}
-		else if (val == MazeSearchGlobals.START_LOCATION_VALUE || val == 1)
-		{
-		    imageGraphics.setColor(Color.blue);
-		    imageGraphics.drawString("S", 17 + j * 29, 22 + i * 29);
-		}
-		else if (val == MazeSearchGlobals.GOAL_LOCATION_VALUE)
-		{
-		    imageGraphics.setColor(Color.red);
-		    imageGraphics.drawString("G", 17 + j * 29, 22 + i * 29);
-		}
-
-		// Drawing the outline for each square in the maze.
-		imageGraphics.setColor(Color.black);
-		imageGraphics.drawRect(6 + j * 29, 3 + i * 29, 29, 29);
-	    }
-	}
-
-	// Drawing the path in black.
-	imageGraphics.setColor(Color.black);
-	final Location[] path = depthFirstSearchEngine.getSearchPath();
-	for (int i = 1; i < path.length; i++)
-	{
-	    final int row = path[i].getRow();
-	    final int column = path[i].getColumn();
-	    final short val = maze.getValue(row, column);
-
-	    /*
-	     * This offset is used to center the value of the depth in the search path.
-	     * Generally, this offset works fine with values from 0 to 150 in mazes with 30
-	     * rows and 30 columns.
-	     */
-	    int offset = (int) ((column * 0.6) - (Integer.toString(val).length() * 0.01));
-	    imageGraphics.drawString("" + val, 17 + column * 28 + offset, 22 + row * 29);
-	}
-
-	// Drawing the BufferedImage representing the maze on the JPanel
-	jPnaleGraphics.drawImage(mazeImage, 10, 10, mazeColumns * 31, mazeRows * 31, null);
-    }
-
     /**
      * @throws Exception
      */
@@ -173,7 +95,7 @@ public class MazeDepthFirstSearch extends JFrame
     {
 	// TODO: Add scrollbars to the frame.
 
-	this.setContentPane(jPanel);
+	this.setContentPane(getDepthFirstSearchJPanel());
 
 	this.setCursor(null);
 
@@ -183,26 +105,39 @@ public class MazeDepthFirstSearch extends JFrame
 	// JFrame title.
 	this.setTitle("Maze Depth First Search");
 
-	this.getContentPane().setLayout(null);
-
-	jPanel.setBackground(Color.white);
-
-	jPanel.setDebugGraphicsOptions(DebugGraphics.NONE_OPTION);
-
-	jPanel.setDoubleBuffered(false);
-
-	jPanel.setRequestFocusEnabled(false);
-
-	jPanel.setLayout(null);
-
 	// Getting the dimensions of the maze to set the correct size for the JFrame.
 	final Maze maze = depthFirstSearchEngine.getMaze();
 	final int mazeRows = maze.getRows();
 	final int mazeColumns = maze.getColumns();
 
+	// Setting frame size.
 	this.setSize(20 + mazeRows * 31, 40 + mazeColumns * 31);
 
+	// Setting frame visible
 	this.setVisible(true);
+    }
+
+    /**
+     * @return the current instance of depthFirstSearchJPanel.
+     */
+    private MazeDepthFirstSearchJPanel getDepthFirstSearchJPanel()
+    {
+	if (depthFirstSearchJPanel == null)
+	{
+	    // Initialize the JPanel if not already initialized.
+	    depthFirstSearchJPanel = new MazeDepthFirstSearchJPanel(depthFirstSearchEngine);
+
+	    // Sets the background color of this component.
+	    depthFirstSearchJPanel.setBackground(Color.white);
+
+	    // Enables or disables diagnostic information about every graphics operation
+	    // performed within the component or one of its children.
+	    depthFirstSearchJPanel.setDebugGraphicsOptions(DebugGraphics.NONE_OPTION);
+
+	    depthFirstSearchJPanel.setRequestFocusEnabled(false);
+	}
+
+	return depthFirstSearchJPanel;
     }
 
     /**
@@ -224,11 +159,18 @@ public class MazeDepthFirstSearch extends JFrame
 	System.out.println("Enter the number of columns:");
 	inputColumns = scanner.nextInt();
 
-	System.out.println(
-		"Starting Maze Depth First Search with a maze of size " + inputRows + " by " + inputColumns + ".");
+	if ((inputRows > 0) && (inputColumns > 0))
+	{
+	    System.out.println(
+		    "Starting Maze Depth First Search with a maze of size " + inputRows + " by " + inputColumns + ".");
 
-	// Starts a Depth First Search on a maze of the given dimensions.
-	new MazeDepthFirstSearch(inputRows, inputColumns);
+	    // Starts a Depth First Search on a maze of the given dimensions.
+	    new MazeDepthFirstSearch(inputRows, inputColumns);
+	}
+	else
+	{
+	    System.out.println("Invalid inputs.");
+	}
 
 	scanner.close();
 
