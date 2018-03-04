@@ -1,1 +1,6 @@
+chap1
 chap2.search.maze
+chap2.search.maze.breadthfirst
+chap2.search.maze.breadthfirst.gui
+chap2.search.maze.depthfirst
+chap2.search.maze.depthfirst.gui
