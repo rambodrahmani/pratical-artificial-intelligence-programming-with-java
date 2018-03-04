@@ -5,6 +5,9 @@
  */
 package chap2.search.maze;
 
+import chap2.search.maze.breadthfirst.BreadthFirstSearchEngine;
+import chap2.search.maze.depthfirst.DepthFirstSearchEngine;
+
 /**
  * 2D Maze Search. This abstract class contains common code and data that is
  * required by both the depth first (uses a stack to to store moves) search

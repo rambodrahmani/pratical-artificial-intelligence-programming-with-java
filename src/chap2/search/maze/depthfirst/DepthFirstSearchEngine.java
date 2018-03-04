@@ -3,7 +3,10 @@
  * by Mark Watson and later review by Rambod Rahmani. The following might be
  * slightly different from the original one.
  */
-package chap2.search.maze;
+package chap2.search.maze.depthfirst;
+
+import chap2.search.maze.AbstractSearchEngine;
+import chap2.search.maze.Location;
 
 /**
  * @author Rambod Rahmani &lt;rambodrahmani@autistici.org&gt;

@@ -3,7 +3,7 @@
  * by Mark Watson and later review by Rambod Rahmani. The following might be
  * slightly different from the original one.
  */
-package chap2.search.maze;
+package chap2.search.maze.depthfirst;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -13,6 +13,10 @@ import java.util.Scanner;
 import javax.swing.DebugGraphics;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import chap2.search.maze.Location;
+import chap2.search.maze.Maze;
+import chap2.search.maze.MazeSearchGlobals;
 
 /**
  * @author Rambod Rahmani &lt;rambodrahmani@autistici.org&gt;
