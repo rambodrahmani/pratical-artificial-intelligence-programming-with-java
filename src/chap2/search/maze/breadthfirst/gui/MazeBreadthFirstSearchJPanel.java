@@ -1,5 +1,6 @@
 /**
- *
+ * Extends {@link JPanel} to implement a custom JPanel containing the maze shown
+ * in the JFrame.
  */
 package chap2.search.maze.breadthfirst.gui;
 
